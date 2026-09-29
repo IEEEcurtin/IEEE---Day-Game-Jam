@@ -6,7 +6,7 @@ This repository contains all the resources, starter code, and documentation you 
 
 ## 📅 Event Details
 * **Date:** Monday, October 6th
-* **Time:** 08:00 PM
+* **Time:** 10:00 AM
 * **Location:** Rooms 12.24 and 12.25, Curtin University Dubai
 * **Theme:** "You are the Controller"
 
@@ -45,7 +45,6 @@ To make the most of your time at the jam, please do the following before you arr
 We are committed to providing a friendly, safe, and welcoming environment for all. Please be respectful to your fellow jammers, mentors, and organizers. 
 
 ## 📞 Contact
-If you have any questions before the event, please reach out to the IEEE Curtin Dubai Student Branch or open an "Issue" in this repository.
-
+Gmail: curtin.dubai.ieee@gmail.com
 ---
 **Let the games begin!** 🕹️
