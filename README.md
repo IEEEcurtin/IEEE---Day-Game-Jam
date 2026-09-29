@@ -1,5 +1,5 @@
 #            👾 IEEE GAME JAM: "You are the Controller" 🎮
-![IEEE Game Jam Poster](poster.gif)
+![IEEE Game Jam Poster]()
 
 Welcome to the official repository for the **IEEE Curtin University Dubai Game Jam**! 
 
