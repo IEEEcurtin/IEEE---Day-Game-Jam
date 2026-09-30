@@ -48,6 +48,40 @@ To make the most of your time at the jam, please do the following before you arr
 3. **Read the Inspiration Manual** (in the `/docs` folder) to start brainstorming your game idea.
 4. **Form your team!** Teams of 4 max. Only 8 spots available, so register early!
 
+<h2 class="sec">📅 EVENT DAY SCHEDULE</h2>
+
+<table style="width: 100%; border-collapse: collapse; font-family: 'Courier New', monospace; font-size: 18px; color: #fff7d6; background-color: #101f4a; border: 4px solid #2c4390;">
+  <thead>
+    <tr style="background-color: #ff3d6e; color: #ffffff; font-family: 'Press Start 2P', 'Courier New', monospace; font-size: 12px;">
+      <th style="padding: 12px; border: 3px solid #2c4390; text-align: left;">TIME</th>
+      <th style="padding: 12px; border: 3px solid #2c4390; text-align: left;">SEGMENT</th>
+      <th style="padding: 12px; border: 3px solid #2c4390; text-align: left;">DETAILS &amp; EXECUTION</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #ffd23f; white-space: nowrap;">10:00 – 10:30</td>
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #4cd04c; font-weight: bold;">Opening &amp; Info Session</td>
+      <td style="padding: 12px; border: 3px solid #2c4390;">Event rules, component walkthrough, and live project/sensor demonstrations. Also a showcase of projects participants can do (the HTML made earlier by Hamdan), which acts as the Q&amp;A before the game-making begins.</td>
+    </tr>
+    <tr style="background-color: #0d1a3d;">
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #ffd23f; white-space: nowrap;">10:30 – 13:30</td>
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #4cd04c; font-weight: bold;">Game Jam (3 hours)</td>
+      <td style="padding: 12px; border: 3px solid #2c4390;">Hands-on hardware assembly, wiring, ESP programming, and controller building.</td>
+    </tr>
+    <tr>
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #ffd23f; white-space: nowrap;">13:30 – 14:30</td>
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #4cd04c; font-weight: bold;">Game Exhibition</td>
+      <td style="padding: 12px; border: 3px solid #2c4390;">Live game playtesting, peer interaction, and community voting. Teams also submit the required files to itch.io.</td>
+    </tr>
+    <tr style="background-color: #0d1a3d;">
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #ffd23f; white-space: nowrap;">14:30 – 15:00</td>
+      <td style="padding: 12px; border: 3px solid #2c4390; color: #4cd04c; font-weight: bold;">Awards &amp; Closing</td>
+      <td style="padding: 12px; border: 3px solid #2c4390;">Awards displayed on screen for winning team photos, followed by a group photo session.</td>
+    </tr>
+  </tbody>
+</table>
+
 ## 🤝 Code of Conduct
 We are committed to providing a friendly, safe, and welcoming environment for all. Please be respectful to your fellow jammers, mentors, and organizers. 
 
