@@ -7,7 +7,7 @@
 ![Status](https://img.shields.io/badge/Status-Registration%20Open-brightgreen)
 ![Visitors](https://komarev.com/ghpvc/?username=IEEEcurtin&label=Repo%20Views&color=0e75b6&style=flat)
 
-![IEEE Game Jam Poster](IEEE_Game_Jam_Animated.gif)
+![IEEE Game Jam Poster](IEEE_Game_Jam_Pacman.gif)
 
 Welcome to the official repository for the **IEEE Curtin University Dubai Game Jam**! 
 
