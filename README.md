@@ -5,7 +5,6 @@
 ![Teams](https://img.shields.io/badge/Teams-of%204-green)
 ![Status](https://img.shields.io/badge/Status-Registration%20Open-brightgreen)
 ![Visitors](https://komarev.com/ghpvc/?username=IEEEcurtin&label=Repo%20Views&color=0e75b6&style=flat)
-![Visitors](https://visitor-badge.laobi.icu/badge?page_id=IEEEcurtin.IEEE---Day-Game-Jam&left_text=Repo%20Views&left_color=%23ff3d6e&right_color=%230d1a3d)
 ![IEEE Game Jam Poster](poster_.gif)
 
 Welcome to the official repository for the **IEEE Curtin University Dubai Game Jam**! 
