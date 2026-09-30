@@ -1,4 +1,10 @@
 #            👾 IEEE GAME JAM: "You are the Controller" 🎮
+![IEEE](https://img.shields.io/badge/IEEE-Curtin%20Dubai-blue)
+![Event](https://img.shields.io/badge/Event-Game%20Jam-red)
+![Date](https://img.shields.io/badge/Date-Oct%206%202026-yellow)
+![Teams](https://img.shields.io/badge/Teams-of%204-green)
+![Status](https://img.shields.io/badge/Status-Registration%20Open-brightgreen)
+![Visitors](https://komarev.com/ghpvc/?username=IEEEcurtin&label=Repo%20Views&color=0e75b6&style=flat)
 ![IEEE Game Jam Poster](poster_.gif)
 
 Welcome to the official repository for the **IEEE Curtin University Dubai Game Jam**! 
