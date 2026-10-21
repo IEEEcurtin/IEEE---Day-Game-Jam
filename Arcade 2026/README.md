@@ -14,12 +14,15 @@ The arcade opens full screen in Chrome, or in Edge if Chrome isn't installed.
 To update a laptop later, download a fresh ZIP the same way. Leaderboards are kept separately on each laptop, so updating never wipes them.
 
 ## Running it on the day
+Each laptop runs as a station for one game. Pick the game once, and after every player the arcade returns to that game's how-to-play screen, ready for the next person. It also remembers the game if the arcade is restarted.
+
 * **Choose a game** with the arrow keys, then press Enter.
 * **Choose 1 or 2 players** with the left and right arrows on the how-to-play screen, for games that have both.
 * **Leave a game early** by holding Esc for 2 seconds. This is for helpers, so players can't quit by accident.
-* **Test a controller** by pressing F2 on the menu. Every key the controller sends shows up on screen.
+* **Switch to a different game** by pressing Esc on the how-to-play screen. That opens the full menu.
+* **Test a controller** by pressing F2 on the menu or the how-to-play screen. Every key the controller sends shows up on screen.
 * **Close the arcade** with Alt+F4.
-* Games go back to the menu by themselves after 60 seconds with nobody playing.
+* A game left alone for 60 seconds goes back to its how-to-play screen by itself.
 
 Bluetooth controllers need pairing once per laptop in Windows Bluetooth settings. USB controllers just plug in, since the arcade finds them by itself. If anything goes wrong, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 

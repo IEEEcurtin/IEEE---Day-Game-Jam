@@ -123,9 +123,17 @@ function draw() {
   }
 }
 
-function loop() { update(); draw(); requestAnimationFrame(loop); }
+// Fixed 60 steps a second, so the drone feels the same on any screen
+// (otherwise it runs in slow motion on slow screens and too fast on 120/144 Hz ones)
+let last = performance.now(), acc = 0;
+function loop(now) {
+  acc += Math.min(100, now - last); last = now;
+  while (acc >= 1000 / 60) { update(); acc -= 1000 / 60; }
+  draw();
+  requestAnimationFrame(loop);
+}
 reset();
-loop();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>

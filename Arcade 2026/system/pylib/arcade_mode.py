@@ -18,7 +18,7 @@ LOG_PATH = os.environ.get("ARCADE_LOG")
 
 IDLE_SECONDS = 60       # nobody touches anything for this long -> back to the menu
 QUIT_HOLD_SECONDS = 2   # helpers hold Esc this long to leave a game
-END_SCREEN_SECONDS = 4  # how long a game-over screen stays up before returning
+END_SCREEN_SECONDS = 2.5  # how long a game-over screen stays up before the name screen
 
 # USB-serial chips used by ESP32 and Arduino boards
 KNOWN_USB_VIDS = {

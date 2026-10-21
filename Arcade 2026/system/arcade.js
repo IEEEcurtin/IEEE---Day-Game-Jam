@@ -1,6 +1,7 @@
 'use strict';
 /* IEEE Arcade menu.
-   Flow: menu -> how to play -> game -> score and name entry -> leaderboard -> menu.
+   Flow: menu -> how to play -> game -> score and name entry -> leaderboard -> back to that game's how to play.
+   Each laptop acts as a station for one game. Esc on the how-to-play screen goes back to the full menu.
    Web games run in an iframe and report their score with postMessage({type:'arcade:over', score}).
    Python games are launched by server.py and report through /api/launch. */
 
@@ -10,7 +11,8 @@ const IDLE_MS = 60000;        // nobody touches anything -> back to the menu
 const ENTRY_IDLE_MS = 30000;  // name entry left alone -> save what is there
 const BOARD_IDLE_MS = 10000;  // leaderboard shown this long after a game
 const EXIT_HOLD_MS = 2000;    // helpers hold Esc this long to leave a game
-const END_DELAY_MS = 2500;    // let players see the game's own game-over screen first
+const END_DELAY_MS = 1200;    // a short look at the game's own game-over screen (its input is frozen meanwhile)
+const STATION_KEY = 'arcade-station'; // remembers which game this laptop is running
 const NAME_LEN = 5;
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ';
 const SCREENS = ['menu', 'howto', 'play', 'result', 'tester'];
@@ -102,7 +104,11 @@ async function loadGames() {
     toast('COULD NOT LOAD THE GAME LIST', 10000);
     return;
   }
-  toMenu();
+  // Reopen the game this laptop was running before the arcade was restarted
+  let station = null;
+  try { station = games.find(g => g.id === localStorage.getItem(STATION_KEY)); } catch (e) {}
+  if (station) openHowto(station);
+  else toMenu();
 }
 
 function renderMenu() {
@@ -131,11 +137,23 @@ function moveSel(dx, dy) {
   sfx.move();
 }
 
+// The full menu with every game. Only reached on purpose (Esc on the how-to-play screen).
 function toMenu(message) {
   stopGame();
   api('/api/usb', { active: true }).catch(() => {});
+  try { localStorage.removeItem(STATION_KEY); } catch (e) {}
   show('menu');
   renderMenu();
+  window.focus();
+  if (message) toast(message);
+}
+
+// Where a station goes after a game: back to that game's how-to-play screen, ready for the next player
+function toHome(message) {
+  if (!current) return toMenu(message);
+  stopGame();
+  api('/api/usb', { active: true }).catch(() => {});
+  openHowto(current, true);
   window.focus();
   if (message) toast(message);
 }
@@ -161,9 +179,11 @@ async function renderHowto() {
   } catch (e) {}
 }
 
-async function openHowto(g) {
+async function openHowto(g, keepMode) {
   current = g;
-  solo = !!g.solo; // solo is the default for games that have it
+  sel = Math.max(0, games.indexOf(g));
+  if (!keepMode) solo = !!g.solo; // solo is the default for games that have it
+  try { localStorage.setItem(STATION_KEY, g.id); } catch (e) {}
   $('htBoard').innerHTML = '';
   renderHowto();
   show('howto');
@@ -208,9 +228,9 @@ function startGame() {
     $('pyTitle').textContent = g.title;
     $('pyWait').hidden = false;
     api('/api/launch/' + g.id, {}).then(r => {
-      if (r.error) { log('launch failed: ' + r.error); toMenu('THAT GAME COULD NOT START'); return; }
+      if (r.error) { log('launch failed: ' + r.error); toHome('THAT GAME COULD NOT START'); return; }
       pollTimer = setInterval(pollPython, 500);
-    }).catch(() => toMenu('THAT GAME COULD NOT START'));
+    }).catch(() => toHome('THAT GAME COULD NOT START'));
   }
 }
 
@@ -222,8 +242,8 @@ async function pollPython() {
   pollTimer = null;
   window.focus();
   const r = s.result || {};
-  if (r.reason === 'crash') toMenu('THE GAME CLOSED UNEXPECTEDLY');
-  else if (r.reason !== 'over' || r.score == null) toMenu();
+  if (r.reason === 'crash') toHome('THE GAME CLOSED UNEXPECTEDLY');
+  else if (r.reason !== 'over' || r.score == null) toHome();
   else showResult({ score: r.score });
 }
 
@@ -252,7 +272,9 @@ window.addEventListener('message', e => {
   const d = e.data;
   if (e.origin !== location.origin || !d || d.type !== 'arcade:over') return;
   if (screen !== 'play' || ended) return;
+  // Freeze the game right away so nobody can start another round before the name screen
   ended = true;
+  window.focus();
   log(`over ${current.id} ${JSON.stringify(d)}`);
   setTimeout(() => { if (screen === 'play') { stopGame(); showResult(d); } }, END_DELAY_MS);
 });
@@ -339,7 +361,7 @@ async function saveEntry() {
     showBoard(r.rows, r.rank, r.rank && r.rank <= 10 ? `YOU ARE #${r.rank}!` : 'LEADERBOARD');
   } catch (e) {
     log('could not save score: ' + e);
-    toMenu('SCORE COULD NOT BE SAVED');
+    toHome('SCORE COULD NOT BE SAVED');
   }
 }
 
@@ -364,10 +386,22 @@ function testKey(e) {
 }
 
 /* ---------- keys ---------- */
+let testerFromStation = false;
+function openTester(fromStation) {
+  testerFromStation = fromStation;
+  show('tester');
+  $('testKey').textContent = '-';
+  $('testLog').innerHTML = '';
+}
+
 function onKey(e, fromFrame) {
   lastInput = Date.now();
   if (e.key === 'Escape' && !escDownAt) escDownAt = Date.now();
-  if (fromFrame) return; // the game handles its own keys
+  if (fromFrame) {
+    // The game handles its own keys, except after it has ended: then nothing gets through
+    if (ended) { e.preventDefault(); e.stopImmediatePropagation(); }
+    return;
+  }
 
   const k = e.key;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Backspace', 'Tab', 'F2'].includes(k)) e.preventDefault();
@@ -379,24 +413,27 @@ function onKey(e, fromFrame) {
     else if (k === 'ArrowUp' || k === 'w' || k === 'W') moveSel(0, -1);
     else if (k === 'ArrowDown' || k === 's' || k === 'S') moveSel(0, 1);
     else if (k === 'Enter' || k === ' ') { if (games[sel]) openHowto(games[sel]); }
-    else if (k === 'F2') { show('tester'); $('testKey').textContent = '-'; $('testLog').innerHTML = ''; }
+    else if (k === 'F2') openTester(false);
   } else if (screen === 'howto') {
+    // Esc here is the only way from a game's station back to the full menu
     if (k === 'Escape' || k === 'Backspace') { sfx.back(); toMenu(); }
+    else if (k === 'F2') openTester(true);
     else if (current.solo && (k === 'ArrowLeft' || k === 'ArrowRight')) { solo = !solo; sfx.move(); renderHowto(); }
     else if (Date.now() >= readyAt && !['Shift', 'Control', 'Alt', 'Meta'].includes(k)) startGame();
   } else if (screen === 'result') {
     // Ignore leftover button mashing from the game for a moment
     if (Date.now() - resultShownAt < 1200) return;
     if (resultMode === 'entry') entryKey(e);
-    else if (resultMode === 'board' && Date.now() - boardShownAt > 1500 && k !== 'Escape') toMenu();
+    else if (resultMode === 'board' && Date.now() - boardShownAt > 1500 && k !== 'Escape') toHome();
   } else if (screen === 'tester') {
-    if (k === 'F2') toMenu();
+    if (k === 'F2') testerFromStation ? toHome() : toMenu();
     else testKey(e);
   }
 }
 
 function onKeyUp(e) {
   if (e.key === 'Escape') escDownAt = 0;
+  if (ended && screen === 'play' && e.view !== window) { e.preventDefault(); e.stopImmediatePropagation(); }
 }
 
 window.addEventListener('keydown', e => onKey(e, false));
@@ -449,23 +486,22 @@ function tick() {
     if (p >= 1) {
       escDownAt = 0;
       log('helper closed ' + (current && current.id));
-      toMenu('GAME CLOSED');
+      toHome('GAME CLOSED');
     }
   }
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
 
-/* ---------- idle: return to the menu when nobody is playing ---------- */
+/* ---------- idle: back to the game's how-to-play screen when nobody is playing ---------- */
 setInterval(() => {
   const idle = Date.now() - lastInput;
-  if (screen === 'howto' && idle > IDLE_MS) toMenu();
-  else if (screen === 'tester' && idle > IDLE_MS) toMenu();
+  if (screen === 'tester' && idle > IDLE_MS) testerFromStation ? toHome() : toMenu();
   else if (screen === 'play' && current && current.type === 'web' && !ended && idle > IDLE_MS) {
     log('idle, closing ' + current.id);
-    toMenu('NOBODY WAS PLAYING, BACK TO THE MENU');
+    toHome('NOBODY WAS PLAYING');
   } else if (screen === 'result' && resultMode === 'entry' && idle > ENTRY_IDLE_MS) saveEntry();
-  else if (screen === 'result' && resultMode === 'board' && idle > BOARD_IDLE_MS) toMenu();
+  else if (screen === 'result' && resultMode === 'board' && idle > BOARD_IDLE_MS) toHome();
 }, 1000);
 
 loadGames();
