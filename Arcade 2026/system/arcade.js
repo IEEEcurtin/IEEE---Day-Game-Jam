@@ -261,6 +261,7 @@ $('frame').addEventListener('load', () => {
     const w = f.contentWindow;
     w.addEventListener('keydown', e => onKey(e, true), true);
     w.addEventListener('keyup', e => onKeyUp(e), true);
+    blockBrowserMouse(w);
     w.addEventListener('error', e => log(`${current.id} error: ${e.message} at line ${e.lineno}`));
     w.focus();
   } catch (e) {
@@ -394,7 +395,29 @@ function openTester(fromStation) {
   $('testLog').innerHTML = '';
 }
 
+// Browser shortcuts a player could hit by accident (F1 opens Chrome Help, F12 developer tools,
+// Ctrl+P print, Ctrl+F find, Ctrl and +/- zoom...). The arcade swallows them before Chrome acts.
+// Alt+F4 and Alt+Tab still work, since Windows handles those itself.
+const BROWSER_KEYS = ['F1', 'F3', 'F6', 'F7', 'F10', 'F11', 'F12', 'BrowserBack', 'BrowserForward', 'BrowserSearch', 'BrowserHome'];
+function blockBrowserKeys(e) {
+  const ctrlCombo = (e.ctrlKey || e.metaKey) && !['Control', 'Meta'].includes(e.key);
+  const altArrow = e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home');
+  if (BROWSER_KEYS.includes(e.key) || ctrlCombo || altArrow) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    return true;
+  }
+  return false;
+}
+// Right-click menus and Ctrl+scroll zoom, blocked the same way
+function blockBrowserMouse(w) {
+  w.addEventListener('contextmenu', e => e.preventDefault(), true);
+  w.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { capture: true, passive: false });
+}
+blockBrowserMouse(window);
+
 function onKey(e, fromFrame) {
+  if (blockBrowserKeys(e)) return;
   lastInput = Date.now();
   if (e.key === 'Escape' && !escDownAt) escDownAt = Date.now();
   if (fromFrame) {
@@ -436,8 +459,9 @@ function onKeyUp(e) {
   if (ended && screen === 'play' && e.view !== window) { e.preventDefault(); e.stopImmediatePropagation(); }
 }
 
-window.addEventListener('keydown', e => onKey(e, false));
-window.addEventListener('keyup', onKeyUp);
+// Capture phase, so the arcade sees every key first
+window.addEventListener('keydown', e => onKey(e, false), true);
+window.addEventListener('keyup', onKeyUp, true);
 window.addEventListener('blur', () => { escDownAt = 0; });
 
 /* ---------- USB controllers read by the server (Arduino key messages like W1 / W0) ---------- */

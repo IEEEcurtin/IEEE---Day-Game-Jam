@@ -22,6 +22,7 @@ Every game can be played on the keyboard. If a controller misbehaves, keep playi
 | Keys do nothing in a game | Click once on the game with the mouse so it has focus, then try again. |
 | Bomb Defusal or Co-Pilots opened but can't be seen | Press **Alt+Tab** and pick the game window. |
 | Bomb Defusal or Co-Pilots won't close | Hold **Esc** for 2 seconds in the game. If that fails, hold Esc on the arcade's "running in its own window" screen. |
+| A Chrome page (Help, settings, a new tab) is covering the arcade | Press **Ctrl+W** to close it. The arcade is still running underneath. Don't use Alt+F4, which can close the arcade itself. |
 | The arcade froze | Press **Alt+F4**, then run `Start Arcade.bat` again. Leaderboards are saved after every game, so nothing is lost. |
 | Sound is missing | Check the laptop volume, and that the laptop isn't on mute. |
 
