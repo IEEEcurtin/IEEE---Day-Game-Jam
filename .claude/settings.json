@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:SDL_VIDEODRIVER = 'dummy'; $env:SDL_AUDIODRIVER = 'dummy'; & \"runtime\\\\python\\\\python.exe\" \"arcade\\\\server.py\" --no-browser)",
+      "PowerShell(python -I \"C:\\\\Users\\\\erdze\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Development-My-Projects-IEEE-Curtin-Student-Branch-Projects-IEEE---Day-Game-Jam\\\\cb94bfab-60db-4940-b36d-d8f75d799eae\\\\scratchpad\\\\probe_py.py\")",
+      "PowerShell($p = \\(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue\\).OwningProcess | Select-Object -First 1; if \\($p\\) { Stop-Process -Id $p -Force; \"stopped $p\" })",
+      "PowerShell($env:SDL_VIDEODRIVER = 'dummy'; $env:SDL_AUDIODRIVER = 'dummy'; & \"runtime\\\\python\\\\python.exe\" \"arcade\\\\server.py\" --no-browser --debug)",
+      "PowerShell(python -I \"C:\\\\Users\\\\erdze\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Development-My-Projects-IEEE-Curtin-Student-Branch-Projects-IEEE---Day-Game-Jam\\\\cb94bfab-60db-4940-b36d-d8f75d799eae\\\\scratchpad\\\\probe_usb.py\")",
+      "PowerShell(& \"runtime\\\\python\\\\python.exe\" \"C:\\\\Users\\\\erdze\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Development-My-Projects-IEEE-Curtin-Student-Branch-Projects-IEEE---Day-Game-Jam\\\\cb94bfab-60db-4940-b36d-d8f75d799eae\\\\scratchpad\\\\test_bridge.py\")",
+      "PowerShell($p = \\(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue\\).OwningProcess | Select-Object -First 1; if \\($p\\) { Stop-Process -Id $p -Force; \"stopped test server $p\" })",
+      "PowerShell(cmd /c \"arcade\\\\Start Arcade \\(windowed\\).bat\")",
+      "PowerShell(Get-ChildItem \"arcade\\\\data\" -Force | Select-Object Name; Get-ChildItem \"arcade\\\\data\\\\scores\" | ForEach-Object { \"== \" + $_.Name; \\(Get-Content $_.FullName -Raw | ConvertFrom-Json\\) | ForEach-Object { \"   \" + $_.name + \" \" + $_.score } })",
+      "PowerShell(git check-ignore -v \"Final Games/meme-fighter/DonaldL.png\" \"runtime/python/python.exe\" \"arcade/data/scores\" \"arcade/pylib/arcade_mode.py\" 2>&1)",
+      "PowerShell($l = \\(Get-Content \"Final Games\\\\flappy-tungs\\\\index.html\"\\)[61]; $m = [regex]::Matches\\($l, '\\(?i\\)uzair|shehryar|arman sana|mohid|lahiru|adil|flavian|anuk|suraj|the conversion|made by|author'\\); foreach \\($x in $m\\) { \"{0} at {1}: ...{2}...\" -f $x.Value, $x.Index, $l.Substring\\([Math]::Max\\(0,$x.Index-30\\), 70\\) })",
+      "PowerShell($rt = \\(Resolve-Path \"runtime\\\\python\"\\).Path; $deep = Get-ChildItem $rt -Recurse -File | Sort-Object { $_.FullName.Length } -Descending | Select-Object -First 1; \"deepest file inside the runtime adds {0} characters: {1}\" -f \\($deep.FullName.Length - $rt.Length\\), $deep.FullName.Substring\\($rt.Length\\); \"this repo's runtime path is {0} characters\" -f $rt.Length; \"%LOCALAPPDATA% is {0} characters: {1}\" -f $env:LOCALAPPDATA.Length, $env:LOCALAPPDATA; Get-ItemProperty 'HKLM:\\\\SYSTEM\\\\CurrentControlSet\\\\Control\\\\FileSystem' -Name LongPathsEnabled -ErrorAction SilentlyContinue | Select-Object LongPathsEnabled)",
+      "PowerShell($env:SDL_VIDEODRIVER = 'dummy'; $env:SDL_AUDIODRIVER = 'dummy'; & \"$env:LOCALAPPDATA\\\\IEEEArcade\\\\python\\\\python.exe\" \"C:\\\\Users\\\\erdze\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Development-My-Projects-IEEE-Curtin-Student-Branch-Projects-IEEE---Day-Game-Jam\\\\cb94bfab-60db-4940-b36d-d8f75d799eae\\\\scratchpad\\\\fresh\\\\IEEE---Day-Game-Jam-main\\\\arcade\\\\server.py\" --no-browser)",
+      "PowerShell(New-Item -ItemType Directory \"Arcade 2026\")",
+      "PowerShell(Move-Item \"Final Games\" \"Arcade 2026\\\\Games\")",
+      "PowerShell(Move-Item \"arcade\" \"Arcade 2026\\\\system\")",
+      "PowerShell(Move-Item \"Start Arcade.bat\" \"Arcade 2026\\\\Start Arcade.bat\")",
+      "PowerShell(Move-Item \"Arcade 2026\\\\system\\\\TROUBLESHOOTING.md\" \"Arcade 2026\\\\TROUBLESHOOTING.md\")",
+      "PowerShell(& \"$env:LOCALAPPDATA\\\\IEEEArcade\\\\python\\\\python.exe\" \"Arcade 2026\\\\system\\\\server.py\" --no-browser --debug)",
+      "PowerShell(python -I \"C:\\\\Users\\\\erdze\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Development-My-Projects-IEEE-Curtin-Student-Branch-Projects-IEEE---Day-Game-Jam\\\\cb94bfab-60db-4940-b36d-d8f75d799eae\\\\scratchpad\\\\probe_solo.py\")",
+      "PowerShell(python -I \"C:\\\\Users\\\\erdze\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Development-My-Projects-IEEE-Curtin-Student-Branch-Projects-IEEE---Day-Game-Jam\\\\cb94bfab-60db-4940-b36d-d8f75d799eae\\\\scratchpad\\\\probe_failat.py\")",
+      "PowerShell($env:SDL_VIDEODRIVER = 'dummy'; $env:SDL_AUDIODRIVER = 'dummy'; & \"$env:LOCALAPPDATA\\\\IEEEArcade\\\\python\\\\python.exe\" \"Arcade 2026\\\\system\\\\server.py\" --no-browser --debug)",
+      "PowerShell($env:SDL_VIDEODRIVER = 'dummy'; $env:SDL_AUDIODRIVER = 'dummy'; & \"$env:LOCALAPPDATA\\\\IEEEArcade\\\\python\\\\python.exe\" \"C:\\\\Users\\\\erdze\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Development-My-Projects-IEEE-Curtin-Student-Branch-Projects-IEEE---Day-Game-Jam\\\\cb94bfab-60db-4940-b36d-d8f75d799eae\\\\scratchpad\\\\fresh\\\\IEEE---Day-Game-Jam-main\\\\Arcade 2026\\\\system\\\\server.py\" --no-browser)",
+      "PowerShell(git add -A -- . ':\\(exclude\\).claude'; git status --short | Measure-Object | Select-Object Count; git status --short | Where-Object { $_ -notmatch 'Arcade 2026/' })",
+      "PowerShell(git add .gitattributes)",
+      "PowerShell(git add --renormalize -- \"Arcade 2026\")",
+      "PowerShell(git push origin main 2>&1)",
+      "PowerShell(git config --show-origin --get-all credential.helper)",
+      "PowerShell(git credential-manager --version 2>$null)",
+      "PowerShell(git credential-manager github list 2>$null)"
+    ],
+    "additionalDirectories": [
+      "C:\\Development\\My_Projects\\IEEE-Curtin-Student-Branch-Projects\\IEEE---Day-Game-Jam\\arcade\\data\\scores"
+    ]
+  }
+}
