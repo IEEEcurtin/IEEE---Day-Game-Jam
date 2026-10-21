@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chop Chop</title>
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #DCEEF5; --sky-top: #BFE0EE; --sky-bottom: #EEF7EF;
+    --ground: #7DB46C; --ground-dark: #5E9852;
+    --trunk: #8A5A3B; --trunk-dark: #6E4429; --leaf: #3F8F4E; --leaf-light: #5BAA5F;
+    --player: #1C7C8C; --helmet: #F2B33D; --skin: #F1C9A5; --axe: #5B6470;
+    --bar-bg: #FFFFFF; --bar: #E0A12E; --miss: #E04E39;
+    --text: #1F2E36; --muted: #4F6570; --key-border: #A9C6D2; --key-on-text: #FFFFFF;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141B2B; --sky-top: #121A2A; --sky-bottom: #26324A;
+      --ground: #2F5A3A; --ground-dark: #234530;
+      --trunk: #7A5034; --trunk-dark: #5C3A24; --leaf: #3C7A49; --leaf-light: #4F9459;
+      --player: #3BB3C3; --helmet: #F2B33D; --skin: #E3B994; --axe: #A7B0BC;
+      --bar-bg: #26324A; --bar: #F0B442; --miss: #FF6A55;
+      --text: #E8EEF4; --muted: #9AABBE; --key-border: #34425E; --key-on-text: #141B2B;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141B2B; --sky-top: #121A2A; --sky-bottom: #26324A;
+    --ground: #2F5A3A; --ground-dark: #234530;
+    --trunk: #7A5034; --trunk-dark: #5C3A24; --leaf: #3C7A49; --leaf-light: #4F9459;
+    --player: #3BB3C3; --helmet: #F2B33D; --skin: #E3B994; --axe: #A7B0BC;
+    --bar-bg: #26324A; --bar: #F0B442; --miss: #FF6A55;
+    --text: #E8EEF4; --muted: #9AABBE; --key-border: #34425E; --key-on-text: #141B2B;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    height: 100%; margin: 0; overflow: hidden;
+    background: var(--bg); color: var(--text);
+    font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; justify-content: center;
+  }
+  .stage { position: relative; height: 100%; width: min(100%, 440px); display: flex; flex-direction: column; }
+  header { position: relative; text-align: center; padding: 14px 16px 10px; }
+  #mute {
+    position: absolute; top: 12px; right: 12px;
+    font: inherit; font-size: 14px; color: var(--muted);
+    background: transparent; border: 2px solid var(--key-border); border-radius: 8px;
+    padding: 4px 10px; cursor: pointer;
+  }
+  #mute:focus-visible { outline: 3px solid var(--player); outline-offset: 2px; }
+  #score { font-size: 56px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .bar { margin: 10px auto 0; width: 62%; height: 12px; border-radius: 6px; background: var(--bar-bg); overflow: hidden; }
+  #energy { height: 100%; width: 100%; background: var(--bar); border-radius: 6px; }
+  #energy.low { background: var(--miss); }
+  #status { margin-top: 8px; font-size: 15px; color: var(--muted); min-height: 1.3em; }
+  .board { position: relative; flex: 1; min-height: 0; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
+  footer { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+  .key {
+    border: 2px solid var(--key-border); border-radius: 10px; padding: 10px 0;
+    text-align: center; font-size: 17px; font-weight: 700; color: var(--muted);
+    transition: background-color 60ms, color 60ms, border-color 60ms;
+  }
+  .key.down { background: var(--player); border-color: var(--player); color: var(--key-on-text); }
+  .overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 24px;
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+  }
+  .overlay[hidden] { display: none; }
+  .overlay h2 { margin: 0; font-size: 34px; }
+  .overlay p { margin: 0; font-size: 17px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .key { transition: none; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <header>
+    <button id="mute" type="button">Sound on</button>
+    <div id="score">0</div>
+    <div class="bar" aria-hidden="true"><div id="energy"></div></div>
+    <div id="status"></div>
+  </header>
+  <div class="board">
+    <canvas id="board" aria-label="Game board: a tree with branches and a woodcutter"></canvas>
+    <div class="overlay" id="overlay" hidden>
+      <h2 id="reason"></h2>
+      <p id="final"></p>
+      <p>Press left or right to play again</p>
+    </div>
+  </div>
+  <footer>
+    <div class="key" id="key0">← Left</div>
+    <div class="key" id="key1">Right →</div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("board");
+  const ctx = canvas.getContext("2d");
+  const scoreEl = document.getElementById("score");
+  const energyEl = document.getElementById("energy");
+  const statusEl = document.getElementById("status");
+  const overlay = document.getElementById("overlay");
+  const reasonEl = document.getElementById("reason");
+  const finalEl = document.getElementById("final");
+  const keyEls = [document.getElementById("key0"), document.getElementById("key1")];
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // segs[0] is the trunk piece beside the woodcutter; each value is the branch side (0 left, 1 right, -1 none)
+  let segs, side, score, state, energy, lockUntil, fall, flyers, swingAt, deathAt;
+
+  // Sound effects, made in the browser (no audio files needed)
+  let audio = null, muted = false;
+  try { muted = localStorage.getItem("chopChopMuted") === "1"; } catch (e) {}
+  const muteBtn = document.getElementById("mute");
+  const showMute = () => { muteBtn.textContent = muted ? "Sound off" : "Sound on"; };
+  showMute();
+  muteBtn.addEventListener("click", () => {
+    muted = !muted;
+    try { localStorage.setItem("chopChopMuted", muted ? "1" : "0"); } catch (e) {}
+    showMute();
+    muteBtn.blur();
+  });
+
+  function getAudio() {
+    if (muted) return null;
+    if (!audio) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      audio = new Ctx();
+    }
+    if (audio.state === "suspended") audio.resume();
+    return audio;
+  }
+
+  function chopSound() {
+    const a = getAudio();
+    if (!a) return;
+    const t = a.currentTime;
+    // Crack of the axe: a short burst of filtered noise
+    const len = Math.floor(a.sampleRate * 0.06);
+    const buf = a.createBuffer(1, len, a.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    const noise = a.createBufferSource();
+    noise.buffer = buf;
+    const filter = a.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1700 + Math.random() * 500;
+    filter.Q.value = 1.2;
+    const ng = a.createGain();
+    ng.gain.value = 0.6;
+    noise.connect(filter).connect(ng).connect(a.destination);
+    noise.start(t);
+    // Thud of the wood: a quick falling tone
+    const osc = a.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(210 + Math.random() * 40, t);
+    osc.frequency.exponentialRampToValueAtTime(90, t + 0.08);
+    const og = a.createGain();
+    og.gain.setValueAtTime(0.5, t);
+    og.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+    osc.connect(og).connect(a.destination);
+    osc.start(t);
+    osc.stop(t + 0.11);
+  }
+
+  function dieSound() {
+    const a = getAudio();
+    if (!a) return;
+    const t = a.currentTime;
+    const osc = a.createOscillator();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(70, t + 0.5);
+    const g = a.createGain();
+    g.gain.setValueAtTime(0.18, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+    osc.connect(g).connect(a.destination);
+    osc.start(t);
+    osc.stop(t + 0.56);
+  }
+
+  const MAX_TIME = 30; // length of one game, in seconds
+
+  let best = 0;
+  try { best = Number(localStorage.getItem("chopChopBest30")) || 0; } catch (e) {}
+
+  // Branch odds (tweak these two numbers to change how busy the tree is)
+  const EMPTY_AFTER_GAP = 0.1;     // after an empty piece: 10% empty again, otherwise a branch (50/50 left or right)
+  const SAME_AFTER_BRANCH = 0.6;   // after a branch: 60% another on the same side, otherwise one empty gap
+  // A branch never switches sides without an empty piece in between.
+  function nextBranch(prev) {
+    if (prev === -1) {
+      if (Math.random() < EMPTY_AFTER_GAP) return -1;
+      return Math.random() < 0.5 ? 0 : 1;
+    }
+    return Math.random() < SAME_AFTER_BRANCH ? prev : -1;
+  }
+  function topUp() { while (segs.length < 40) segs.push(nextBranch(segs[segs.length - 1])); }
+
+  function showStatus() {
+    statusEl.textContent = state === "ready"
+      ? `Chop as much as you can in ${MAX_TIME} seconds`
+      : state === "playing"
+        ? `${Math.ceil(energy)} s left  ·  Best ${best}`
+        : `Best ${best}`;
+  }
+
+  function reset() {
+    segs = [-1, -1, -1]; topUp(); // a clear start
+    side = 0; score = 0; state = "ready"; energy = MAX_TIME;
+    fall = 0; flyers = []; swingAt = -1e9; deathAt = -1e9;
+    scoreEl.textContent = "0";
+    overlay.hidden = true;
+    showStatus();
+  }
+
+  function end(reason) {
+    state = "over"; deathAt = performance.now();
+    lockUntil = deathAt + 700;
+    if (score > best) {
+      best = score;
+      try { localStorage.setItem("chopChopBest30", String(best)); } catch (e) {}
+    }
+    reasonEl.textContent = reason === "branch" ? "A branch fell on you"
+      : "Time's up";
+    finalEl.textContent = `Score ${score}  ·  Best ${best}`;
+    overlay.hidden = false;
+    showStatus();
+    // Tell the IEEE arcade menu the score (does nothing when played on its own)
+    if (window.parent !== window) window.parent.postMessage({ type: "arcade:over", score }, "*");
+  }
+
+  function press(s) {
+    const now = performance.now();
+    if (state === "over") {
+      if (now >= lockUntil) reset();
+      return;
+    }
+    if (state === "ready") state = "playing";
+
+    side = s;
+    swingAt = now;
+    chopSound();
+    const cut = segs.shift();
+    topUp();
+    flyers.push({ branch: cut, dir: s === 0 ? 1 : -1, t0: now });
+    fall = 1;
+
+    if (segs[0] === side) { dieSound(); end("branch"); return; }
+
+    score++;
+    scoreEl.textContent = String(score);
+    showStatus();
+  }
+
+  function setHeld(lane, down) { keyEls[lane].classList.toggle("down", down); }
+
+  // Keyboard (what the Arduino script sends)
+  const KEYMAP = { ArrowLeft: 0, ArrowRight: 1 };
+  window.addEventListener("keydown", e => {
+    const s = KEYMAP[e.key];
+    if (s === undefined) return;
+    e.preventDefault();
+    setHeld(s, true);
+    if (!e.repeat) press(s);
+  });
+  window.addEventListener("keyup", e => {
+    const s = KEYMAP[e.key];
+    if (s !== undefined) setHeld(s, false);
+  });
+  window.addEventListener("blur", () => { setHeld(0, false); setHeld(1, false); });
+
+  // Mouse / touch, for testing without the controller
+  canvas.addEventListener("pointerdown", e => {
+    const rect = canvas.getBoundingClientRect();
+    const s = e.clientX - rect.left < rect.width / 2 ? 0 : 1;
+    setHeld(s, true);
+    setTimeout(() => setHeld(s, false), 100);
+    press(s);
+  });
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const d = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(r.width * d));
+    canvas.height = Math.max(1, Math.round(r.height * d));
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+    else ctx.rect(x, y, w, h);
+    ctx.fill();
+  }
+  function circle(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+
+  function draw(now) {
+    const css = getComputedStyle(document.documentElement);
+    const col = name => css.getPropertyValue(name).trim();
+    const W = canvas.width, H = canvas.height;
+    const groundY = H * 0.86;
+    const segH = Math.min(H * 0.105, W * 0.2);
+    const trunkW = W * 0.2;
+    const trunkL = (W - trunkW) / 2, trunkR = trunkL + trunkW;
+    const branchLen = W * 0.27, branchT = segH * 0.2;
+
+    ctx.save();
+    if (state === "over" && !reduceMotion) {
+      const t = (now - deathAt) / 250;
+      if (t < 1) ctx.translate((Math.random() - 0.5) * W * 0.03 * (1 - t), 0);
+    }
+
+    // Sky and ground
+    const sky = ctx.createLinearGradient(0, 0, 0, groundY);
+    sky.addColorStop(0, col("--sky-top"));
+    sky.addColorStop(1, col("--sky-bottom"));
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, groundY);
+    ctx.fillStyle = col("--ground");
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = col("--ground-dark");
+    ctx.fillRect(0, groundY, W, H * 0.012);
+
+    function drawBranch(cy, s, x0) {
+      const dir = s === 0 ? -1 : 1;
+      const tipX = x0 + dir * branchLen;
+      ctx.fillStyle = col("--trunk-dark");
+      roundRect(Math.min(x0, tipX), cy - branchT / 2, branchLen, branchT, branchT / 2);
+      ctx.fillStyle = col("--leaf");
+      circle(tipX, cy - segH * 0.08, segH * 0.26);
+      circle(tipX - dir * segH * 0.28, cy - segH * 0.14, segH * 0.2);
+      ctx.fillStyle = col("--leaf-light");
+      circle(tipX + dir * segH * 0.06, cy - segH * 0.2, segH * 0.13);
+    }
+
+    // Trunk pieces, sliding down after each chop
+    const drop = fall * segH;
+    const count = Math.ceil(groundY / segH) + 2;
+    for (let i = 0; i < count; i++) {
+      const bottom = groundY - i * segH - drop;
+      const top = bottom - segH;
+      if (bottom < 0) break;
+      ctx.fillStyle = i % 2 ? col("--trunk") : col("--trunk-dark");
+      ctx.fillRect(trunkL, top, trunkW, segH + 1);
+      ctx.fillStyle = col("--trunk");
+      ctx.fillRect(trunkL + trunkW * 0.15, top, trunkW * 0.7, segH + 1);
+      const b = segs[i];
+      if (b === 0) drawBranch(top + segH / 2, 0, trunkL);
+      if (b === 1) drawBranch(top + segH / 2, 1, trunkR);
+    }
+
+    // Chopped pieces flying off
+    flyers = flyers.filter(f => now - f.t0 < 350);
+    for (const f of flyers) {
+      const t = (now - f.t0) / 350;
+      ctx.save();
+      ctx.globalAlpha = 1 - t;
+      ctx.translate(W / 2 + f.dir * W * 0.9 * t, groundY - segH / 2 - segH * 1.2 * Math.sin(t * Math.PI));
+      ctx.rotate(f.dir * t * 5);
+      ctx.fillStyle = col("--trunk");
+      ctx.fillRect(-trunkW / 2, -segH / 2, trunkW, segH);
+      ctx.restore();
+    }
+
+    // Woodcutter
+    const gap = W * 0.14;
+    const px = side === 0 ? trunkL - gap : trunkR + gap;
+    const face = side === 0 ? 1 : -1; // faces the trunk
+    const bodyW = segH * 0.5, bodyH = segH * 0.55;
+    const bodyTop = groundY - bodyH;
+    const dead = state === "over";
+    ctx.fillStyle = dead ? col("--miss") : col("--player");
+    roundRect(px - bodyW / 2, bodyTop, bodyW, bodyH, bodyW * 0.3);
+    ctx.fillStyle = col("--skin");
+    circle(px, bodyTop - segH * 0.16, segH * 0.17);
+    ctx.fillStyle = col("--helmet");
+    ctx.beginPath();
+    ctx.arc(px, bodyTop - segH * 0.19, segH * 0.19, Math.PI, 0);
+    ctx.fill();
+    ctx.fillRect(px - segH * 0.24, bodyTop - segH * 0.2, segH * 0.48, segH * 0.05);
+
+    // Axe: swings into the trunk on each chop
+    const swinging = now - swingAt < 110;
+    ctx.save();
+    ctx.translate(px + face * bodyW * 0.35, bodyTop + bodyH * 0.35);
+    ctx.scale(face, 1);
+    ctx.rotate(swinging ? 0.15 : -0.9); // raised at rest, level with the trunk mid-swing
+    ctx.fillStyle = col("--trunk-dark");
+    ctx.fillRect(0, -segH * 0.03, segH * 0.5, segH * 0.06);
+    ctx.fillStyle = col("--axe");
+    ctx.beginPath();
+    ctx.moveTo(segH * 0.42, -segH * 0.03);
+    ctx.lineTo(segH * 0.56, -segH * 0.16);
+    ctx.lineTo(segH * 0.6, segH * 0.02);
+    ctx.lineTo(segH * 0.42, segH * 0.03);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    fall = reduceMotion ? 0 : Math.max(0, fall - dt / 0.07);
+    if (state === "playing") {
+      energy -= dt;
+      showStatus();
+      if (energy <= 0) { energy = 0; dieSound(); end("time"); }
+    }
+    energyEl.style.width = `${(energy / MAX_TIME * 100).toFixed(1)}%`;
+    energyEl.classList.toggle("low", energy < MAX_TIME * 0.25);
+    draw(now);
+    requestAnimationFrame(frame);
+  }
+
+  reset();
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

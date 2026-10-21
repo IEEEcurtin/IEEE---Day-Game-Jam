@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IEEE Arcade</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="arcade.css">
+</head>
+<body>
+
+<!-- Menu: pick a game -->
+<section id="menu" class="screen">
+  <header class="marquee">
+    <div class="org">IEEE CURTIN UNIVERSITY DUBAI STUDENT BRANCH</div>
+    <h1>IEEE ARCADE</h1>
+    <div class="sub">GAMES FROM THE IEEE DAY GAME JAM</div>
+  </header>
+  <div id="grid" class="grid"></div>
+  <footer class="hint"><span class="key">←</span><span class="key">→</span><span class="key">↑</span><span class="key">↓</span> CHOOSE &nbsp;&nbsp; <span class="key">ENTER</span> PLAY<span id="usbStatus" class="usb"></span></footer>
+</section>
+
+<!-- How to play, shown before every game -->
+<section id="howto" class="screen" hidden>
+  <div class="howto">
+    <div class="howto-main">
+      <div class="eyebrow">HOW TO PLAY</div>
+      <h2 id="htTitle"></h2>
+      <div id="htPlayers" class="players"></div>
+      <div id="htMode" class="modepick" hidden>
+        <span class="key">←</span>
+        <span id="modeSolo" class="mode">1 PLAYER<small>VS COMPUTER</small></span>
+        <span id="modeDuo" class="mode">2 PLAYERS</span>
+        <span class="key">→</span>
+      </div>
+      <p id="htGoal" class="goal"></p>
+      <ol id="htRules" class="rules"></ol>
+      <h3>CONTROLS</h3>
+      <div id="htControls" class="controls"></div>
+      <p id="htController" class="controller"></p>
+    </div>
+    <aside class="board">
+      <h3>TOP 5</h3>
+      <ol id="htBoard" class="scores"></ol>
+    </aside>
+  </div>
+  <div class="start">
+    <div class="readbar"><i id="readFill"></i></div>
+    <div id="startText" class="start-text">READ THE RULES</div>
+  </div>
+</section>
+
+<!-- Playing: web games run in the frame, Python games in their own window -->
+<section id="play" class="screen" hidden>
+  <iframe id="frame" title="Game" allow="serial; autoplay; fullscreen; gamepad"></iframe>
+  <div id="pyWait" class="pywait" hidden>
+    <h2 id="pyTitle"></h2>
+    <p>Game is running in its own window.</p>
+    <p class="small">If you can't see it, press <span class="key">ALT</span> + <span class="key">TAB</span></p>
+  </div>
+</section>
+
+<!-- Results, name entry, and leaderboard -->
+<section id="result" class="screen" hidden>
+  <div class="result">
+    <div id="resHead" class="eyebrow">GAME OVER</div>
+    <h2 id="resTitle"></h2>
+    <div class="final"><span id="resScore"></span> <small id="resLabel"></small></div>
+    <div id="entry" class="entry" hidden>
+      <p id="entryPrompt">ENTER YOUR NAME</p>
+      <div id="slots" class="slots"></div>
+      <p class="small"><span class="key">↑</span><span class="key">↓</span> LETTER &nbsp;&nbsp; <span class="key">←</span><span class="key">→</span> MOVE &nbsp;&nbsp; <span class="key">ENTER</span> SAVE</p>
+    </div>
+    <div id="resBoard" class="board wide" hidden>
+      <h3 id="resBoardTitle">LEADERBOARD</h3>
+      <ol id="resScores" class="scores"></ol>
+      <p id="resNext" class="small blink">PRESS ANY BUTTON</p>
+    </div>
+  </div>
+</section>
+
+<!-- Helper screen: F2 shows every key a controller sends -->
+<section id="tester" class="screen" hidden>
+  <div class="eyebrow">CONTROLLER TEST</div>
+  <h2>PRESS ANYTHING ON THE CONTROLLER</h2>
+  <div id="testKey" class="testkey">-</div>
+  <ol id="testLog" class="testlog"></ol>
+  <p id="testUsb" class="small"></p>
+  <p class="small">Bluetooth controllers and the Arduino tilt stick and tap pads show their keys here.<br>The bomb panel, Co-Pilots, and Flappy Tungs USB controllers are only read inside their own game.<br>Press <span class="key">F2</span> to go back.</p>
+</section>
+
+<div id="exitBar" class="exitbar" hidden><span>HOLD ESC TO EXIT</span><i id="exitFill"></i></div>
+<div id="toast" class="toast" hidden></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<script src="arcade.js"></script>
+</body>
+</html>

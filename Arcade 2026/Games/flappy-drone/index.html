@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flappy Drone</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1d2b4f; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { background: #8fd3f4; max-width: 100%; max-height: 100%; touch-action: manipulation; }
+</style>
+</head>
+<body>
+<canvas id="c" width="400" height="600"></canvas>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+const W = c.width, H = c.height;
+
+const GRAVITY = 0.45, FLAP = -7.5, GAP = 160, PIPE_W = 60;
+// Speeds up a little with every gap, up to a cap, so a run can't last forever
+const START_SPEED = 2.5, SPEED_STEP = 0.08, MAX_SPEED = 4.5, PIPE_SPACING = 240;
+let drone, pipes, score, best = 0, state, speed, travelled;
+
+function reset() {
+  drone = { x: 90, y: H / 2, vy: 0, r: 14 };
+  pipes = [];
+  score = 0;
+  speed = START_SPEED;
+  travelled = PIPE_SPACING - 1; // first pillar appears straight away
+  state = 'ready';
+}
+
+function flap() {
+  if (state === 'over') { reset(); return; }
+  state = 'play';
+  drone.vy = FLAP;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); flap(); }
+});
+c.addEventListener('pointerdown', flap);
+
+function update() {
+  if (state !== 'play') return;
+  drone.vy += GRAVITY;
+  drone.y += drone.vy;
+
+  // Pillars are spaced by distance, so the gaps between them stay fair as it speeds up
+  travelled += speed;
+  if (travelled >= PIPE_SPACING) {
+    travelled -= PIPE_SPACING;
+    const top = 60 + Math.random() * (H - GAP - 120);
+    pipes.push({ x: W, top, passed: false });
+  }
+  for (const p of pipes) {
+    p.x -= speed;
+    if (!p.passed && p.x + PIPE_W < drone.x) {
+      p.passed = true;
+      score++;
+      speed = Math.min(MAX_SPEED, START_SPEED + score * SPEED_STEP);
+    }
+    const hitX = drone.x + drone.r > p.x && drone.x - drone.r < p.x + PIPE_W;
+    const hitY = drone.y - drone.r < p.top || drone.y + drone.r > p.top + GAP;
+    if (hitX && hitY) gameOver();
+  }
+  pipes = pipes.filter(p => p.x > -PIPE_W);
+  if (drone.y + drone.r > H - 40 || drone.y - drone.r < 0) gameOver();
+}
+
+function gameOver() {
+  state = 'over';
+  best = Math.max(best, score);
+  // Tell the IEEE arcade menu the score (does nothing when played on its own)
+  if (window.parent !== window) window.parent.postMessage({ type: 'arcade:over', score }, '*');
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // pillars
+  ctx.fillStyle = '#2e7d4f';
+  for (const p of pipes) {
+    ctx.fillRect(p.x, 0, PIPE_W, p.top);
+    ctx.fillRect(p.x, p.top + GAP, PIPE_W, H - p.top - GAP);
+  }
+
+  // ground
+  ctx.fillStyle = '#c8a165';
+  ctx.fillRect(0, H - 40, W, 40);
+
+  // drone: body plus two rotors
+  ctx.save();
+  ctx.translate(drone.x, drone.y);
+  ctx.rotate(Math.max(-0.5, Math.min(0.6, drone.vy * 0.06)));
+  ctx.fillStyle = '#f5a623';
+  ctx.fillRect(-16, -8, 32, 16);
+  ctx.fillStyle = '#1d2b4f';
+  ctx.fillRect(4, -4, 8, 6);
+  ctx.fillRect(-20, -12, 12, 3);
+  ctx.fillRect(8, -12, 12, 3);
+  ctx.restore();
+
+  // text
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#1d2b4f';
+  ctx.lineWidth = 4;
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 44px system-ui, sans-serif';
+  ctx.strokeText(score, W / 2, 70);
+  ctx.fillText(score, W / 2, 70);
+
+  ctx.font = 'bold 22px system-ui, sans-serif';
+  if (state === 'ready') {
+    ctx.strokeText('Press space or tap to fly', W / 2, H / 2 + 70);
+    ctx.fillText('Press space or tap to fly', W / 2, H / 2 + 70);
+  } else if (state === 'over') {
+    ctx.strokeText('Game over. Best: ' + best, W / 2, H / 2);
+    ctx.fillText('Game over. Best: ' + best, W / 2, H / 2);
+    ctx.strokeText('Press space to try again', W / 2, H / 2 + 34);
+    ctx.fillText('Press space to try again', W / 2, H / 2 + 34);
+  }
+}
+
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+reset();
+loop();
+</script>
+</body>
+</html>

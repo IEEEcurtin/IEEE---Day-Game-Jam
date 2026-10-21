@@ -1,0 +1,176 @@
+[
+  {
+    "id": "chop-chop",
+    "title": "Chop Chop",
+    "type": "web",
+    "path": "Games/chop-chop/index.html",
+    "players": 1,
+    "colour": "#7db46c",
+    "score": { "mode": "high", "label": "CHOPS" },
+    "goal": "Chop the tree as many times as you can in 30 seconds.",
+    "rules": [
+      "Every chop takes a piece off the bottom of the tree.",
+      "If a branch drops onto your side, you are out.",
+      "Watch the branches and switch sides before they reach you."
+    ],
+    "controls": [["←", "Chop from the left"], ["→", "Chop from the right"]],
+    "controller": "Two tap pads. Tap left or right."
+  },
+  {
+    "id": "void-run",
+    "title": "Void Run",
+    "type": "web",
+    "path": "Games/void-run/index.html",
+    "players": 1,
+    "colour": "#5cf2c9",
+    "score": { "mode": "high", "label": "POINTS" },
+    "goal": "Fly as far as you can and blast drones for points.",
+    "rules": [
+      "Your ship flies forward by itself. Steer around the rocks.",
+      "Drones are worth 100 points and rocks 25.",
+      "Crashes and drone shots damage your hull. Empty hull ends the run."
+    ],
+    "controls": [["W A S D", "Steer (or the arrow keys)"], ["SPACE", "Hold to fire. Press to launch."]],
+    "controller": "Tilt stick. Tilt to steer, hold the button to fire."
+  },
+  {
+    "id": "flappy-tungs",
+    "title": "Flappy Tungs",
+    "type": "web",
+    "path": "Games/flappy-tungs/index.html",
+    "ownsUsb": true,
+    "players": 2,
+    "colour": "#ff5d8f",
+    "score": { "mode": "high", "label": "METRES" },
+    "goal": "Angel against devil. Fly further than your rival. First to 3 rounds wins.",
+    "rules": [
+      "Both players stomp once to get ready, then 3, 2, 1.",
+      "Every stomp flaps your wings. Fly through the gaps in the spikes.",
+      "Touching a spike, the ceiling, or the ground puts you out for that round."
+    ],
+    "controls": [["A", "Player 1 (angel) flaps"], ["L", "Player 2 (devil) flaps"]],
+    "controller": "Two foot pedals. Stomp to flap.",
+    "solo": {
+      "score": { "mode": "high", "label": "METRES" },
+      "goal": "Race the devil, flown by the computer. First to 3 rounds wins. Your best distance goes on the board.",
+      "rules": [
+        "Stomp once to get ready, then 3, 2, 1.",
+        "Every stomp flaps your wings. Fly through the gaps in the spikes.",
+        "Pass more gaps than the devil to win the round."
+      ],
+      "controls": [["A", "Flap"]],
+      "controller": "Use pedal 1 (the left one). Stomp to flap."
+    }
+  },
+  {
+    "id": "dead-tape-gun",
+    "title": "Dead Tape Gun",
+    "type": "web",
+    "path": "Games/dead-tape-gun/index.html",
+    "players": 2,
+    "colour": "#c1121f",
+    "score": { "mode": "wins", "label": "WINS" },
+    "goal": "Two players, one gun, six chambers. Best of 3 rounds.",
+    "rules": [
+      "Each player has 3 HP. Some chambers are live and some are blank.",
+      "Aim at your rival or at yourself, then hold the trigger to fire.",
+      "A blank at yourself keeps your turn. Then pass the gun on."
+    ],
+    "controls": [["W", "Aim at your rival"], ["S", "Aim at yourself"], ["X", "Lower the gun"], ["SPACE", "Hold to pull the trigger"], ["F", "Fake a shot"], ["R", "Spin the cylinder"]],
+    "controller": "Tape gun. Tilt it to aim and squeeze the trigger.",
+    "solo": {
+      "score": { "mode": "wins", "label": "WINS" },
+      "goal": "You against the Stranger, played by the computer. One gun, six chambers. Best of 3 rounds.",
+      "rules": [
+        "You both have 3 HP. Some chambers are live and some are blank. Watch the count.",
+        "Aim at the Stranger or at yourself, then hold the trigger to fire.",
+        "A blank at yourself keeps your turn. Beat the Stranger to get on the board."
+      ]
+    }
+  },
+  {
+    "id": "bomb-defusal",
+    "title": "Don't Press That!",
+    "type": "python",
+    "path": "Games/bomb-defusal/game.py",
+    "players": 1,
+    "colour": "#f0c832",
+    "score": { "mode": "high", "label": "POINTS" },
+    "goal": "Defuse the bomb by following every instruction on the screen.",
+    "rules": [
+      "Read the WHOLE instruction. Some of them are tricks.",
+      "When it says don't press anything, keep your hands off.",
+      "A wrong press costs a life. Lose all 3 lives or run out of time and it blows."
+    ],
+    "controls": [["R B G", "Red, blue, and green buttons"], ["0 - 9", "Keypad numbers"], ["A V C D", "Keypad A B C D (V is B)"], ["S  H", "Keypad * and #"]],
+    "controller": "Bomb panel. Coloured buttons and a keypad."
+  },
+  {
+    "id": "co-pilots",
+    "title": "Co-Pilots",
+    "type": "python",
+    "path": "Games/co-pilots/game.py",
+    "players": 2,
+    "colour": "#00f0ff",
+    "score": { "mode": "high", "label": "POINTS" },
+    "goal": "Two pilots, one ship. Work together to survive as long as you can.",
+    "rules": [
+      "Player 1 steers left and right through the CYAN walls.",
+      "Player 2 flies up and down through the PINK beams.",
+      "Grab gold coins for bonus points. One crash ends the run."
+    ],
+    "controls": [["← →", "Player 1 steers"], ["W S", "Player 2 up and down"], ["SPACE", "Boost (press to start)"]],
+    "controller": "Tilt the controller to steer, buttons for up, down, and boost."
+  },
+  {
+    "id": "two-lane-tiles",
+    "title": "Two-Lane Tiles",
+    "type": "web",
+    "path": "Games/two-lane-tiles/index.html",
+    "players": 1,
+    "colour": "#2ccfbf",
+    "score": { "mode": "high", "label": "TILES" },
+    "goal": "Hit every tile as it falls. It keeps getting faster.",
+    "rules": [
+      "Press the lane that has the lowest dark tile.",
+      "Pressing the wrong lane ends the run.",
+      "Letting a tile fall off the bottom ends the run."
+    ],
+    "controls": [["←", "Left lane"], ["→", "Right lane"]],
+    "controller": "Two tap pads. Tap left or right."
+  },
+  {
+    "id": "four-key-tiles",
+    "title": "Four Key Tiles",
+    "type": "web",
+    "path": "Games/four-key-tiles/index.html",
+    "players": 1,
+    "colour": "#e63946",
+    "score": { "mode": "high", "label": "TILES" },
+    "goal": "Play the falling tiles like a piano. It keeps getting faster.",
+    "rules": [
+      "Press the key under the lowest dark tile.",
+      "Pressing the wrong key ends the run.",
+      "Letting a tile fall off the bottom ends the run."
+    ],
+    "controls": [["Q W O P", "Lanes 1 to 4, left to right"]],
+    "controller": "Four buttons, one per lane."
+  },
+  {
+    "id": "flappy-drone",
+    "title": "Flappy Drone",
+    "type": "web",
+    "path": "Games/flappy-drone/index.html",
+    "players": 1,
+    "colour": "#f5a623",
+    "score": { "mode": "high", "label": "GAPS" },
+    "goal": "Fly the drone through as many gaps as you can.",
+    "rules": [
+      "Each press gives the drone a lift. Gravity pulls it down.",
+      "Every gap you pass scores a point, and it keeps getting faster.",
+      "Touching a pillar, the ground, or the top ends the run."
+    ],
+    "controls": [["SPACE", "Flap"]],
+    "controller": "Keyboard only."
+  }
+]

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Two-Lane Tiles</title>
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #E6EAF2; --lane: #F6F8FC; --divider: #D3D9E6;
+    --tile: #2B1E3F; --tile-done: #D9D3E8;
+    --hit: #1FB5A8; --miss: #E04E39;
+    --text: #2B1E3F; --muted: #6B6584;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12101A; --lane: #1D1A28; --divider: #2E2A3D;
+      --tile: #E7E1FF; --tile-done: #34304A;
+      --hit: #2CCFBF; --miss: #FF6A55;
+      --text: #EDE9FF; --muted: #9C95B8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12101A; --lane: #1D1A28; --divider: #2E2A3D;
+    --tile: #E7E1FF; --tile-done: #34304A;
+    --hit: #2CCFBF; --miss: #FF6A55;
+    --text: #EDE9FF; --muted: #9C95B8;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    height: 100%; margin: 0; overflow: hidden;
+    background: var(--bg); color: var(--text);
+    font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; justify-content: center;
+  }
+  .stage { position: relative; height: 100%; width: min(100%, 440px); display: flex; flex-direction: column; }
+  header { text-align: center; padding: 14px 16px 10px; }
+  #score { font-size: 56px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  #status { margin-top: 6px; font-size: 15px; color: var(--muted); min-height: 1.3em; }
+  .board { position: relative; flex: 1; min-height: 0; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
+  footer { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+  .key {
+    border: 2px solid var(--divider); border-radius: 10px; padding: 10px 0;
+    text-align: center; font-size: 17px; font-weight: 700; color: var(--muted);
+    transition: background-color 60ms, color 60ms, border-color 60ms;
+  }
+  .key.down { background: var(--hit); border-color: var(--hit); color: var(--lane); }
+  .overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 24px;
+    background: color-mix(in srgb, var(--lane) 86%, transparent);
+  }
+  .overlay[hidden] { display: none; }
+  .overlay h2 { margin: 0; font-size: 34px; }
+  .overlay p { margin: 0; font-size: 17px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .key { transition: none; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <header>
+    <div id="score">0</div>
+    <div id="status"></div>
+  </header>
+  <div class="board">
+    <canvas id="board" aria-label="Game board: two lanes of falling tiles"></canvas>
+    <div class="overlay" id="overlay" hidden>
+      <h2 id="reason"></h2>
+      <p id="final"></p>
+      <p>Press left or right to play again</p>
+    </div>
+  </div>
+  <footer>
+    <div class="key" id="key0">← Left</div>
+    <div class="key" id="key1">Right →</div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const ROWS = 4;
+  const canvas = document.getElementById("board");
+  const ctx = canvas.getContext("2d");
+  const scoreEl = document.getElementById("score");
+  const statusEl = document.getElementById("status");
+  const overlay = document.getElementById("overlay");
+  const reasonEl = document.getElementById("reason");
+  const finalEl = document.getElementById("final");
+  const keyEls = [document.getElementById("key0"), document.getElementById("key1")];
+
+  let lanes, next, scroll, speed, score, state, lockUntil, endReason, endLane, endTile;
+  const hitFlash = [-1e9, -1e9];
+  const wrongFlash = [-1e9, -1e9];
+
+  let best = 0;
+  try { best = Number(localStorage.getItem("twoLaneBest")) || 0; } catch (e) {}
+
+  function laneAt(k) {
+    while (lanes.length <= k) lanes.push(Math.random() < 0.5 ? 0 : 1);
+    return lanes[k];
+  }
+  // Tile k's top edge, measured in rows from the top of the board
+  const tileTop = k => 2 - k + scroll;
+
+  function showStatus() {
+    statusEl.textContent = state === "ready"
+      ? "Hit the lane with the first tile to start"
+      : `Best ${best}`;
+  }
+
+  function reset() {
+    lanes = []; next = 0; scroll = 0; speed = 1.6; score = 0;
+    state = "ready"; endReason = ""; endLane = -1; endTile = -1;
+    scoreEl.textContent = "0";
+    overlay.hidden = true;
+    showStatus();
+  }
+
+  function end(reason, lane) {
+    state = "over"; endReason = reason; endLane = lane; endTile = next;
+    lockUntil = performance.now() + 700;
+    if (reason === "missed") scroll -= 1; // bring the missed tile back into view
+    if (score > best) {
+      best = score;
+      try { localStorage.setItem("twoLaneBest", String(best)); } catch (e) {}
+    }
+    reasonEl.textContent = reason === "wrong" ? "Wrong lane" : "Missed a tile";
+    finalEl.textContent = `Score ${score}  ·  Best ${best}`;
+    overlay.hidden = false;
+    showStatus();
+    // Tell the IEEE arcade menu the score (does nothing when played on its own)
+    if (window.parent !== window) window.parent.postMessage({ type: "arcade:over", score }, "*");
+  }
+
+  function press(lane) {
+    const now = performance.now();
+    if (state === "over") {
+      if (now >= lockUntil) reset();
+      return;
+    }
+    if (lane !== laneAt(next)) {
+      wrongFlash[lane] = now;
+      if (state === "playing") end("wrong", lane);
+      return;
+    }
+    if (state === "ready") state = "playing";
+    next++; score++;
+    speed = Math.min(5.5, 1.6 + score * 0.04);
+    hitFlash[lane] = now;
+    scoreEl.textContent = String(score);
+    showStatus();
+  }
+
+  function setHeld(lane, down) { keyEls[lane].classList.toggle("down", down); }
+
+  // Keyboard (what the Arduino script sends)
+  const KEYMAP = { ArrowLeft: 0, ArrowRight: 1 };
+  window.addEventListener("keydown", e => {
+    const lane = KEYMAP[e.key];
+    if (lane === undefined) return;
+    e.preventDefault();
+    setHeld(lane, true);
+    if (!e.repeat) press(lane);
+  });
+  window.addEventListener("keyup", e => {
+    const lane = KEYMAP[e.key];
+    if (lane !== undefined) setHeld(lane, false);
+  });
+  window.addEventListener("blur", () => { setHeld(0, false); setHeld(1, false); });
+
+  // Mouse / touch, for testing without the controller
+  canvas.addEventListener("pointerdown", e => {
+    const rect = canvas.getBoundingClientRect();
+    const lane = e.clientX - rect.left < rect.width / 2 ? 0 : 1;
+    setHeld(lane, true);
+    setTimeout(() => setHeld(lane, false), 100);
+    press(lane);
+  });
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const d = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(r.width * d));
+    canvas.height = Math.max(1, Math.round(r.height * d));
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  function tileRect(x, y, w, h, r) {
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+    else ctx.rect(x, y, w, h);
+    ctx.fill();
+  }
+
+  function draw(now) {
+    const css = getComputedStyle(document.documentElement);
+    const col = name => css.getPropertyValue(name).trim();
+    const w = canvas.width, h = canvas.height;
+    const laneW = w / 2, rowH = h / ROWS;
+    const pad = Math.max(2, w * 0.012), radius = w * 0.02;
+
+    ctx.fillStyle = col("--lane");
+    ctx.fillRect(0, 0, w, h);
+
+    // Lane flashes: green for a correct hit, red for a wrong one
+    for (let l = 0; l < 2; l++) {
+      for (const [stamp, name] of [[hitFlash[l], "--hit"], [wrongFlash[l], "--miss"]]) {
+        const t = now - stamp;
+        if (t < 160) {
+          ctx.globalAlpha = 0.22 * (1 - t / 160);
+          ctx.fillStyle = col(name);
+          ctx.fillRect(l * laneW, 0, laneW, h);
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+
+    ctx.fillStyle = col("--divider");
+    ctx.fillRect(laneW - pad / 2, 0, pad, h);
+
+    const kFirst = Math.max(0, Math.floor(2 + scroll - ROWS));
+    const kLast = Math.ceil(3 + scroll);
+    for (let k = kFirst; k <= kLast; k++) {
+      const top = tileTop(k);
+      if (top >= ROWS || top + 1 <= 0) continue;
+      const lane = laneAt(k);
+      let colour = k < next ? "--tile-done" : "--tile";
+      if (state === "over" && k === endTile && endReason === "missed") colour = "--miss";
+      ctx.fillStyle = col(colour);
+      tileRect(lane * laneW + pad, top * rowH + pad, laneW - pad * 2, rowH - pad * 2, radius);
+    }
+
+    // On a wrong press, mark the lane that was pressed
+    if (state === "over" && endReason === "wrong") {
+      ctx.fillStyle = col("--miss");
+      tileRect(endLane * laneW + pad, tileTop(endTile) * rowH + pad, laneW - pad * 2, rowH - pad * 2, radius);
+    }
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (state === "playing") {
+      scroll += speed * dt;
+      if (tileTop(next) >= ROWS) end("missed", laneAt(next));
+    }
+    draw(now);
+    requestAnimationFrame(frame);
+  }
+
+  reset();
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,3 +1,9 @@
+# Meme Fighter stays out of the repo until its content is replaced
+Arcade 2026/Games/meme-fighter/
+
+# Arcade fallback data folder (normally kept in %LOCALAPPDATA%\IEEEArcade instead)
+Arcade 2026/system/data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

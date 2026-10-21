@@ -122,6 +122,9 @@ Each participant votes for one team per award and cannot vote for their own team
 * **Submission:** Teams submit their finished game and their controller's Arduino code to [itch.io](https://itch.io) (a free website for sharing independent games), where anyone can play them.
 * **Certificates:** Every participant receives an official certificate of participation from the branch, using the name given at registration.
 
+## 🕹️ Play the Games
+The games made at the 2026 jam are in [`Arcade 2026/`](Arcade%202026/), along with the IEEE Arcade, a full-screen menu that plays them all with leaderboards. It was first shown at Pinktober 2026. See its [README](Arcade%202026/README.md) to set it up on a laptop.
+
 ## ⚠️ Safety Rules
 * **Scissors and box cutters:** Each team receives its own scissors and box cutters and must keep them in a safe spot at its table. They must never be left on the floor or lying around.
 * **Protecting the venue:** Nothing may be taped, glued, or attached to the venue, including floors, walls, glass, tables, and chairs. Builds may only use disposable or recyclable materials. Teams are liable for any damage they cause to the venue.
