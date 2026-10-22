@@ -271,7 +271,10 @@ $('frame').addEventListener('load', () => {
 
 window.addEventListener('message', e => {
   const d = e.data;
-  if (e.origin !== location.origin || !d || d.type !== 'arcade:over') return;
+  if (e.origin !== location.origin || !d) return;
+  // A game saying someone is playing, for controllers the arcade can't see (e.g. USB pedals)
+  if (d.type === 'arcade:input') { if (screen === 'play') lastInput = Date.now(); return; }
+  if (d.type !== 'arcade:over') return;
   if (screen !== 'play' || ended) return;
   // Freeze the game right away so nobody can start another round before the name screen
   ended = true;

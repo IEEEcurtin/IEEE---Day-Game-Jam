@@ -200,9 +200,20 @@ function closeLB() { $('ovLB').style.display = 'none'; lbOpen = false; }
 $('lbBtn').addEventListener('click', openLB);
 $('lbBack').addEventListener('click', closeLB);
 
+// Tell the IEEE arcade someone is playing. USB pedals don't make key presses the arcade
+// can see, so without this it decided nobody was playing and closed the game after 60 s.
+let lastPing = 0;
+function pingArcade() {
+  const now = performance.now();
+  if (window.parent === window || now - lastPing < 1000) return;
+  lastPing = now;
+  window.parent.postMessage({ type: 'arcade:input' }, '*');
+}
+
 function press(p) {
   if (state === 'names') return;
   if (SOLO && p === 1) return; // the computer flies the devil
+  pingArcade();
   pulse[p] = 8;
   if (state === 'ready') {
     ready[p] = true;
@@ -239,7 +250,12 @@ function endRound(w) {
       ? { score: matchBest[0], title: w === 0 ? 'YOU BEAT THE DEVIL!' : 'THE DEVIL WINS' }
       : { score: matchBest[w], winner: w, winnerName: names[w] };
     if (window.parent !== window) window.parent.postMessage(Object.assign({ type: 'arcade:over' }, result), '*');
-  } else state = 'over';
+  } else {
+    state = 'over';
+    // In the arcade the next round starts by itself, so a match always runs to the end
+    // (a stomp still skips the wait)
+    if (ARCADE) setTimeout(() => { if (state === 'over') reset(); }, 2500);
+  }
 }
 
 function update() {
