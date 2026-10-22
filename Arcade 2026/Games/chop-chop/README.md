@@ -6,8 +6,8 @@ Chop the tree from the left or right and avoid branches on your side. Each round
 
 | Key | Action |
 |---|---|
-| Left arrow | Chop left |
-| Right arrow | Chop right |
+| P (or left arrow) | Chop left |
+| Q (or right arrow) | Chop right |
 
 Clicking or tapping each half of the screen also works.
 

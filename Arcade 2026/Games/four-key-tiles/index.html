@@ -16,9 +16,9 @@
 const c = document.getElementById('c');
 const ctx = c.getContext('2d');
 const W = c.width, H = c.height;
-// Q W O P for each lane (F G H J also work as a backup)
-const KEYS = [['KeyQ', 'KeyF'], ['KeyW', 'KeyG'], ['KeyO', 'KeyH'], ['KeyP', 'KeyJ']];
-const LABELS = ['Q', 'W', 'O', 'P'];
+// O W P Q for the lanes, left to right (F G H J also work as a backup)
+const KEYS = [['KeyO', 'KeyF'], ['KeyW', 'KeyG'], ['KeyP', 'KeyH'], ['KeyQ', 'KeyJ']];
+const LABELS = ['O', 'W', 'P', 'Q'];
 const NOTES = [261.6, 329.6, 392.0, 523.3]; // C, E, G, high C
 const LANE = W / 4, TH = 140;
 
@@ -50,11 +50,20 @@ function reset() {
 
 function target() { return tiles.find(t => !t.hit); }
 
+// Always keep an unhit tile queued above the last one. Without this, a fast player who
+// cleared every tile before the next spawned left no target and the game froze.
+function ensureNext() {
+  if (target()) return;
+  const top = tiles[tiles.length - 1];
+  tiles.push({ lane: randLane(), y: top.y - TH, hit: false });
+}
+
 function press(lane) {
   if (state === 'over') { reset(); return; }
   const t = target();
   if (lane === t.lane) {
     t.hit = true;
+    ensureNext();
     score++;
     speed = Math.min(12, speed + 0.05);
     beep(lane);
@@ -88,6 +97,7 @@ function update() {
   for (const t of tiles) t.y += speed;
   const top = tiles[tiles.length - 1];
   if (top.y > -TH) tiles.push({ lane: randLane(), y: top.y - TH, hit: false });
+  ensureNext();
   const t = target();
   if (t.y > H) { flash = t.lane; gameOver(); }
   tiles = tiles.filter(t => t.y < H + TH);

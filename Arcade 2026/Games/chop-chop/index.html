@@ -90,12 +90,12 @@
     <div class="overlay" id="overlay" hidden>
       <h2 id="reason"></h2>
       <p id="final"></p>
-      <p>Press left or right to play again</p>
+      <p>Press P or Q to play again</p>
     </div>
   </div>
   <footer>
-    <div class="key" id="key0">← Left</div>
-    <div class="key" id="key1">Right →</div>
+    <div class="key" id="key0">P · Left</div>
+    <div class="key" id="key1">Right · Q</div>
   </footer>
 </div>
 
@@ -263,8 +263,8 @@
 
   function setHeld(lane, down) { keyEls[lane].classList.toggle("down", down); }
 
-  // Keyboard (what the Arduino script sends)
-  const KEYMAP = { ArrowLeft: 0, ArrowRight: 1 };
+  // Keyboard: P chops left, Q chops right. The arrows are what the tap pads send.
+  const KEYMAP = { p: 0, P: 0, ArrowLeft: 0, q: 1, Q: 1, ArrowRight: 1 };
   window.addEventListener("keydown", e => {
     const s = KEYMAP[e.key];
     if (s === undefined) return;
