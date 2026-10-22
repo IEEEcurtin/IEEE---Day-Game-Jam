@@ -244,7 +244,7 @@ async function pollPython() {
   const r = s.result || {};
   if (r.reason === 'crash') toHome('THE GAME CLOSED UNEXPECTEDLY');
   else if (r.reason !== 'over' || r.score == null) toHome();
-  else showResult({ score: r.score });
+  else showResult({ score: r.score, winner: r.winner, winnerName: r.winnerName, title: r.title });
 }
 
 function stopGame() {

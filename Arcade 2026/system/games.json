@@ -157,20 +157,20 @@
     "controller": "Four buttons, one per lane."
   },
   {
-    "id": "flappy-drone",
-    "title": "Flappy Drone",
-    "type": "web",
-    "path": "Games/flappy-drone/index.html",
-    "players": 1,
-    "colour": "#f5a623",
-    "score": { "mode": "high", "label": "GAPS" },
-    "goal": "Fly the drone through as many gaps as you can.",
+    "id": "brainrot-mania",
+    "title": "Brainrot Mania",
+    "type": "python",
+    "path": "Games/brainrot-mania/game.py",
+    "players": 2,
+    "colour": "#ffd60a",
+    "score": { "mode": "wins", "label": "WINS" },
+    "goal": "Pick a fighter and knock out your rival. First to win 2 rounds takes the match.",
     "rules": [
-      "Each press gives the drone a lift. Gravity pulls it down.",
-      "Every gap you pass scores a point, and it keeps getting faster.",
-      "Touching a pillar, the ground, or the top ends the run."
+      "Move left and right to pick a fighter, then press punch to lock in.",
+      "Punch three times in a row for a big finisher.",
+      "Hold away from your rival to block. Knock them out or have more health when time runs out."
     ],
-    "controls": [["SPACE", "Flap"]],
-    "controller": "Keyboard only."
+    "controls": [["A D", "Player 1 moves"], ["← →", "Player 2 moves"], ["W", "Player 1 jumps"], ["↑", "Player 2 jumps"], ["F", "Player 1 punches (locks in)"], ["K", "Player 2 punches (locks in)"]],
+    "controller": "Two button pads. Blue and black move, yellow jumps, red punches."
   }
 ]

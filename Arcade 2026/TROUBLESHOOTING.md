@@ -20,8 +20,8 @@ Every game can be played on the keyboard. If a controller misbehaves, keep playi
 | A player is stuck in a game | Hold **Esc** for 2 seconds. A bar fills up, then it goes back to the game's how-to-play screen. |
 | The laptop needs to run a different game | On the how-to-play screen press **Esc** to open the full menu, then pick the game. |
 | Keys do nothing in a game | Click once on the game with the mouse so it has focus, then try again. |
-| Bomb Defusal or Co-Pilots opened but can't be seen | Press **Alt+Tab** and pick the game window. |
-| Bomb Defusal or Co-Pilots won't close | Hold **Esc** for 2 seconds in the game. If that fails, hold Esc on the arcade's "running in its own window" screen. |
+| Bomb Defusal, Co-Pilots, or Brainrot Mania opened but can't be seen | Press **Alt+Tab** and pick the game window. |
+| Bomb Defusal, Co-Pilots, or Brainrot Mania won't close | Hold **Esc** for 2 seconds in the game. If that fails, hold Esc on the arcade's "running in its own window" screen. |
 | A Chrome page (Help, settings, a new tab) is covering the arcade | Press **Ctrl+W** to close it. The arcade is still running underneath. Don't use Alt+F4, which can close the arcade itself. |
 | The arcade froze | Press **Alt+F4**, then run `Start Arcade.bat` again. Leaderboards are saved after every game, so nothing is lost. |
 | Sound is missing | Check the laptop volume, and that the laptop isn't on mute. |
@@ -33,7 +33,7 @@ Every game can be played on the keyboard. If a controller misbehaves, keep playi
 | Not sure if a controller is working | On the menu or a how-to-play screen, press **F2**. Every key the controller sends appears on screen. Press F2 again to go back. |
 | A Bluetooth controller (Dead Tape Gun, Flappy Tungs pedals) does nothing | Open Windows Bluetooth settings and check it is paired and connected. If it was paired to another laptop, remove it there first, then pair it here. |
 | A USB controller (tilt stick, tap pads) does nothing | Unplug it and plug it back in, then wait 3 seconds. The bottom of the menu shows "USB COM..." when the arcade can see it. Close the Arduino Serial Monitor if it is open. |
-| The Bomb Defusal panel or Co-Pilots controller does nothing | Plug it in **before** starting the game, since the game looks for it as it opens. |
+| The Bomb Defusal panel, Co-Pilots controller, or Brainrot Mania buttons do nothing | Plug it in **before** starting the game, since the game looks for it as it opens. |
 | Flappy Tungs USB pedals do nothing | Those pedals connect inside the game. The first time on a laptop, click **Connect pedals (USB)** at the bottom with the mouse and pick the pedals. After that they reconnect by themselves. |
 | Void Run steering feels backwards with the tilt stick | On the Void Run start screen, tick the two **Invert** boxes with the mouse. The laptop remembers this. Untick them for keyboard players. |
 | A controller presses keys by itself | Unplug it. Play on the keyboard until it can be checked. |
