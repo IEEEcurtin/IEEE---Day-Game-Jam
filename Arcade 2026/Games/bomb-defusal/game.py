@@ -54,7 +54,8 @@ lose_sound = pygame.mixer.Sound(
 # ESP32 SERIAL CONNECTION
 # -----------------------------
 
-SERIAL_BAUD = 115200
+# The bomb panel talks at 9600. Other speeds are found by themselves (see arcade_mode.read_line)
+SERIAL_BAUD = 9600
 
 # The ESP32 is found automatically on whichever USB port it is plugged into
 if arcade_mode is not None:
@@ -1012,9 +1013,15 @@ def read_esp32_input():
 
     if ser.in_waiting > 0:
 
-        input_data = ser.readline().decode(
-            errors="ignore"
-        ).strip().upper()
+        if arcade_mode is not None:
+
+            input_data = arcade_mode.read_line(ser).upper()
+
+        else:
+
+            input_data = ser.readline().decode(
+                errors="ignore"
+            ).strip().upper()
 
         valid_inputs = [
             "RED",
@@ -1034,7 +1041,45 @@ def read_esp32_input():
 
                 return input_data
 
+        # The bomb panel's own format: the key then 1 when pressed, 0 when released
+        # (R1, G1, B1 for the colour buttons, 51, A1, *1 for the keypad)
+        if len(input_data) == 2 and input_data[1] == "1":
+
+            key = input_data[0]
+
+            if key == "R":
+
+                return "RED"
+
+            if key == "G":
+
+                return "GREEN"
+
+            # The blue button and keypad B both send B, so give the one the bomb is asking for
+            if key == "B":
+
+                return "KEY_B" if expected_input() == "KEY_B" else "BLUE"
+
+            if key in KEYPAD_KEYS:
+
+                return "KEY_" + key
+
     return None
+
+
+def expected_input():
+
+    if not tasks or task_number >= len(tasks):
+
+        return None
+
+    current_task = tasks[task_number]
+
+    if current_task["type"] == "SEQUENCE":
+
+        return current_task["sequence"][sequence_position]
+
+    return current_task.get("input")
 
 
 def show_message(new_message):

@@ -513,6 +513,8 @@ usbBtn.addEventListener('click', async () => {
 async function connectPedals(port) {
   try {
     await port.open({ baudRate: 115200 });
+    // Reset lines off, some ESP32 boards stay held in reset otherwise
+    try { await port.setSignals({ dataTerminalReady: false, requestToSend: false }); } catch (e) {}
     usbBtn.textContent = 'Pedals connected';
     usbBtn.classList.add('ok');
     usbBtn.blur();

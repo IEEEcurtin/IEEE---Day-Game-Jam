@@ -102,7 +102,7 @@
       "When it says don't press anything, keep your hands off.",
       "A wrong press costs a life. Lose all 3 lives or run out of time and it blows."
     ],
-    "controls": [["R B G", "Red, blue, and green buttons"], ["0 - 9", "Keypad numbers"], ["A V C D", "Keypad A B C D (V is B)"], ["S  H", "Keypad * and #"]],
+    "controls": [["RED BLUE GREEN", "The coloured buttons"], ["0 - 9", "Keypad numbers"], ["A B C D", "Keypad letters"], ["*  #", "Keypad star and hash"]],
     "controller": "Bomb panel. Coloured buttons and a keypad."
   },
   {

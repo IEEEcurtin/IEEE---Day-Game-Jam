@@ -88,7 +88,11 @@ def open_controller(baud, expect=None, listen_seconds=2.5):
     fallback = None
     for p in ports:
         try:
-            ser = serial.Serial(p.device, baud, timeout=0.05)
+            ser = serial.Serial()
+            ser.port, ser.baudrate, ser.timeout = p.device, baud, 0.05
+            # Open with the reset lines off. Some ESP32 boards stay held in reset otherwise
+            ser.dtr = ser.rts = False
+            ser.open()
         except Exception as e:
             log("could not open", p.device, e)
             continue
@@ -116,6 +120,36 @@ def open_controller(baud, expect=None, listen_seconds=2.5):
     else:
         log("no matching controller, keyboard only")
     return fallback
+
+
+BAUD_RATES = (115200, 9600, 57600, 38400, 19200)
+
+
+def read_line(ser):
+    """Read one line from a controller, or "" if there is none.
+
+    If the line is garbled, the board talks at a different speed than expected
+    (an older sketch, say), so move on to the next common speed and keep trying.
+    """
+    raw = ser.readline()
+    if not raw:
+        return ""
+    text = raw.decode(errors="ignore").strip()
+    garbled = b"\x00" in raw or not text.isprintable() or not text
+    if not garbled:
+        ser.arcade_speed_ok = True
+        return text
+    # Once a clean line has come through, the speed is right, so ignore the odd glitch.
+    # One press can arrive as several garbled pieces, so switch at most every 0.5 s.
+    if getattr(ser, "arcade_speed_ok", False) or time.time() - getattr(ser, "arcade_switched_at", 0) < 0.5:
+        return ""
+    ser.arcade_switched_at = time.time()
+    rates = list(BAUD_RATES)
+    nxt = rates[(rates.index(ser.baudrate) + 1) % len(rates)] if ser.baudrate in rates else rates[0]
+    log("garbled message at", ser.baudrate, "baud, trying", nxt)
+    ser.baudrate = nxt
+    ser.reset_input_buffer()
+    return ""
 
 
 class Session:
